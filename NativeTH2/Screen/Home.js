@@ -12,6 +12,11 @@ export default function Home({ navigation }) {
         title="Go to Screen PASSWORD GENERATE"
         onPress={() => navigation.navigate("Screen3")}
       />
+
+      <Button
+        title="Go to Screen Shopping TiKi"
+        onPress={() => navigation.navigate("Screen4")}
+      />
     </View>
   );
 }
