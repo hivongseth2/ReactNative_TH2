@@ -1,5 +1,5 @@
 import { Style } from "@mui/icons-material";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -11,8 +11,14 @@ import {
   TextInput,
 } from "react-native";
 import InputSpinner from "react-native-input-spinner";
+import CPsc4 from "./CPsc4";
 
 export default function Screen4() {
+  const [num, setNum] = useState(1);
+  useEffect(() => {}, [num]);
+  const log = () => {
+    console.log(num);
+  };
   return (
     <View style={styles.container}>
       <View style={styles.HContainer}>
@@ -51,7 +57,7 @@ export default function Screen4() {
               style={styles.spinner}
               rounded={false}
               onChange={(num) => {
-                console.log(num);
+                setNum(num);
               }}
             />
             <TouchableOpacity>
@@ -110,7 +116,7 @@ export default function Screen4() {
       </View>
       <View style={[styles.HContainer, { marginTop: -50 }]}>
         <Text style={{ fontWeight: "bold", fontSize: 20 }}>Tạm tính</Text>
-        <Text style={styles.redText}>141.800đ</Text>
+        <Text style={styles.redText}>{(num * 141.8).toFixed(2)}</Text>
       </View>
       <View
         style={{
@@ -120,13 +126,8 @@ export default function Screen4() {
           marginLeft: 40,
         }}
       >
-        <View style={styles.HContainer}>
-          <Text style={{ fontSize: 23, fontWeight: "bold", color: "gray" }}>
-            Thành tiền
-          </Text>
-          <Text style={styles.redText}>141.800 đ</Text>
-        </View>
-        <TouchableOpacity style={styles.btnOrder}>
+        <CPsc4 num={num}></CPsc4>
+        <TouchableOpacity style={styles.btnOrder} onPress={() => log()}>
           <Text
             style={[
               styles.btnText,

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -10,40 +10,140 @@ import {
   TextInput,
 } from "react-native";
 import BouncyCheckbox from "react-native-bouncy-checkbox";
-import { useState } from "react";
 
 export default function Screen3() {
+  const [upcase, setUpcase] = useState({
+    status: false,
+    item: [
+      "A",
+      "B",
+      "C",
+      "D",
+      "Q",
+      "W",
+      "E",
+      "R",
+      "T",
+      "Y",
+      "U",
+      "I",
+      "O",
+      "P",
+      "S",
+      "F",
+      "G",
+      "H",
+      "J",
+      "K",
+      "L",
+      "Z",
+      "X",
+      "C",
+      "V",
+      "N",
+      "M",
+    ],
+  });
+  const [symbol, setSymbol] = useState({
+    status: false,
+    item: ["!", "@", "#", "$", "%", "^", "&", "*"],
+  });
+  const [downcase, setDowncase] = useState({
+    status: false,
+    item: upcase.item.map((character) => character.toLowerCase()),
+  });
+
+  const [number, setNumber] = useState({
+    status: false,
+    item: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"],
+  });
+  const [Password, setPassword] = useState("");
+  const [length, setLength] = useState(8);
+
+  useEffect(() => {}, [Password]);
+
+  const gene = () => {
+    const selectedElements = [];
+
+    if (downcase.status) {
+      selectedElements.push(...downcase.item);
+    }
+    if (upcase.status) {
+      selectedElements.push(...upcase.item);
+    }
+    if (number.status) {
+      selectedElements.push(...number.item);
+    }
+    if (symbol.status) {
+      selectedElements.push(...symbol.item);
+    }
+
+    let password = "";
+    const passwordLength = parseInt(length);
+
+    if (
+      selectedElements.length > 0 &&
+      !isNaN(passwordLength) &&
+      passwordLength > 0
+    ) {
+      for (let i = 0; i < passwordLength; i++) {
+        const randomIndex = Math.floor(Math.random() * selectedElements.length);
+        password += selectedElements[randomIndex];
+      }
+    } else {
+      password =
+        "Please select at least one element and specify a valid password length.";
+    }
+
+    setPassword(password);
+  };
   return (
     <View style={styles.parentContainer}>
       <View style={styles.container}>
         <Text style={styles.h1}>PASSWORD GENERATEOR</Text>
-        <TextInput style={styles.mainInput}></TextInput>
+        <Text style={styles.mainInput} value={Password}>
+          {Password}
+        </Text>
         <View style={styles.HContainer}>
           <Text style={styles.textBold}>Password length</Text>
-          <TextInput style={styles.Input}></TextInput>
+          <TextInput style={styles.Input} onChangeText={setLength}></TextInput>
         </View>
         <View style={styles.HContainer}>
           <Text style={styles.textBold}>Include lower case letter</Text>
-          <BouncyCheckbox />
+          <BouncyCheckbox
+            isChecked={downcase.status}
+            onPress={() =>
+              setDowncase({ ...downcase, status: !downcase.status })
+            }
+          />
         </View>
         {/* = */}
 
         <View style={styles.HContainer}>
           <Text style={styles.textBold}>Include upcase case letter</Text>
-          <BouncyCheckbox />
+          <BouncyCheckbox
+            isChecked={upcase.status}
+            onPress={() => setUpcase({ ...upcase, status: !upcase.status })}
+          />
         </View>
 
         <View style={styles.HContainer}>
           <Text style={styles.textBold}>Include number</Text>
-          <BouncyCheckbox />
+          <BouncyCheckbox
+            isChecked={number.status}
+            onPress={() => setNumber({ ...number, status: !number.status })}
+          />
         </View>
 
         <View style={styles.HContainer}>
           <Text style={styles.textBold}>Include special symbol</Text>
-          <BouncyCheckbox />
+          <BouncyCheckbox
+            isChecked={symbol.status}
+            onPress={() => setSymbol({ ...symbol, status: !symbol.status })}
+          />
         </View>
 
-        <TouchableOpacity style={styles.Button}>
+        <TouchableOpacity style={styles.Button} onPress={() => gene()}>
           <Text style={styles.btnText}>GENERATE PASSWORD</Text>
         </TouchableOpacity>
       </View>
@@ -120,6 +220,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#151537",
     width: "80%",
     height: 40,
+    color: "#fff",
+    fontSize: 18,
     borderRadius: 5,
   },
 

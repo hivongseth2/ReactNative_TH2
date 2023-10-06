@@ -5,7 +5,11 @@ export default function Home({ navigation }) {
   return (
     <View>
       <Button
-        title="Go to Screen First"
+        title="Go to Screen Login"
+        onPress={() => navigation.navigate("Screen1")}
+      />
+      <Button
+        title="Go to Review"
         onPress={() => navigation.navigate("Screen2")}
       />
       <Button
