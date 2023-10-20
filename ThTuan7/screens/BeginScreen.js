@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View, Image, Button, Pressable } from "react-native";
 import React from "react";
 
-export default function BeginScreen() {
+export default function BeginScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <Text style={styles.text}>
@@ -15,7 +15,12 @@ export default function BeginScreen() {
       </View>
       <Text style={styles.text}>POWER BIKE SHOP</Text>
 
-      <Pressable style={styles.button}>
+      <Pressable
+        style={styles.button}
+        onPress={() => {
+          navigation.navigate("Shopping");
+        }}
+      >
         <Text style={styles.textBtn}>Get Started</Text>
       </Pressable>
     </View>
