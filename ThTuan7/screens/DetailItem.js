@@ -42,8 +42,8 @@ const styles = StyleSheet.create({
     marginTop: 120,
   },
   image: {
-    width: 297,
-    height: 340,
+    width: 298,
+    height: 339,
     flexShrink: 0,
     resizeMode: "contain",
   },
