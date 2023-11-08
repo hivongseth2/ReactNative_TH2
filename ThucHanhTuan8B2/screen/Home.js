@@ -9,15 +9,18 @@ import {
 } from "react-native";
 import React, { useState, useEffect } from "react";
 
-export default function Home() {
+export default function Home({ navigation }) {
   const [type, setType] = useState([]);
   const [data, setData] = useState([]);
+  const [dataFilter, setDataFilter] = useState([]);
+  const [filter, setFilter] = useState("");
+  const [search, setSearch] = useState("");
   useEffect(() => {
     fetch("https://6544ad645a0b4b04436cb772.mockapi.io/cook")
       .then((response) => response.json())
       .then((dataApi) => {
         setData(dataApi);
-
+        setDataFilter(dataApi);
         const types = dataApi.map((item) => item.type);
 
         const uniqueSet = new Set(types);
@@ -30,8 +33,23 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    console.log(type);
-  }, [type]);
+    console.log(filter);
+    if (filter === "") {
+      setDataFilter(data);
+      return;
+    }
+    let temp = [];
+
+    data.forEach((e) => {
+      if (e.type === filter) {
+        {
+          temp.push(e);
+        }
+      }
+    });
+    setDataFilter(temp);
+  }, [filter]);
+
   return (
     <View>
       <Text style={styles.h4}>Welcome, JaJa!</Text>
@@ -39,7 +57,20 @@ export default function Home() {
 
       <TextInput
         style={styles.searchContainer}
-        placeholder="Search  "
+        placeholder="Search"
+        value={search}
+        onChangeText={(text) => {
+          setSearch(text);
+          let temp = [];
+          data.forEach((element) => {
+            console.log(element);
+            if (element.name.toLowerCase().includes(text)) {
+              temp.push(element);
+            }
+          });
+
+          setDataFilter(temp);
+        }}
       ></TextInput>
       <View>
         <FlatList
@@ -47,9 +78,21 @@ export default function Home() {
           data={type}
           renderItem={({ item }) => {
             return (
-              <View style={[styles.item]}>
+              <Pressable
+                style={[
+                  styles.item,
+                  { backgroundColor: item == filter ? "#F1B000" : "#ccc" },
+                ]}
+                onPress={() => {
+                  if (filter === item) {
+                    setFilter("");
+                  } else {
+                    setFilter(item);
+                  }
+                }}
+              >
                 <Text style={styles.h4}>{item}</Text>
-              </View>
+              </Pressable>
             );
           }}
         ></FlatList>
@@ -57,7 +100,7 @@ export default function Home() {
 
       <View style={styles.container}>
         <FlatList
-          data={data}
+          data={dataFilter}
           renderItem={({ item }) => {
             return (
               <View
@@ -93,22 +136,9 @@ export default function Home() {
                   <Text style={styles.h3}>{item.price}</Text>
                 </View>
                 <Pressable
-                  style={{
-                    position: "absolute",
-                    bottom: 0,
-                    right: 0,
-                    width: 45,
-                    height: 44,
-                    backgroundColor: "#F1B000",
-                    // borderRadius: 10,
-
-                    borderTopLeftRadius: 200,
-                    borderTopRightRadius: 41,
-                    borderBottomLeftRadius: 78,
-                    borderBottomRightRadius: 60,
-
-                    alignItems: "center",
-                    justifyContent: "center",
+                  style={styles.plus}
+                  onPress={() => {
+                    navigation.navigate("Detail", { item });
                   }}
                 >
                   <Text
@@ -137,6 +167,22 @@ const styles = StyleSheet.create({
     color: "gray",
     fontWeight: "bold",
     fontSize: "15",
+  },
+  plus: {
+    position: "absolute",
+    bottom: 0,
+    right: 0,
+    width: 45,
+    height: 44,
+    backgroundColor: "#F1B000",
+
+    borderTopLeftRadius: 200,
+    borderTopRightRadius: 41,
+    borderBottomLeftRadius: 78,
+    borderBottomRightRadius: 60,
+
+    alignItems: "center",
+    justifyContent: "center",
   },
   h3: {
     fontWeight: "bold",
