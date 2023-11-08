@@ -10,7 +10,11 @@ export default function App() {
   return (
     <NavigationContainer style={styles.container}>
       <Stack.Navigator initialRouteName="Home">
-        <Stack.Screen name="Home" component={Home} />
+        <Stack.Screen
+          name="Home"
+          component={Home}
+          options={{ headerShown: false }}
+        />
         {/* <Stack.Screen name="Color" component={Color} /> */}
       </Stack.Navigator>
     </NavigationContainer>
