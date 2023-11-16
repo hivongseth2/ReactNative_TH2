@@ -24,7 +24,7 @@ export default function BeginScreen({ navigation }) {
   }, []);
 
   useEffect(() => {
-    console.log(data);
+    console.log("data: ", data);
   }, [data]);
 
   const fetchApi = () => {
@@ -38,19 +38,20 @@ export default function BeginScreen({ navigation }) {
       });
   };
   const Login = () => {
-    if (name && password) {
-      const foundUser = data.find(
-        (item) => item.name === name && item.password === password
-      );
+    let foundUser = null;
 
-      if (foundUser) {
-        setIsAuth(true);
-
-        navigation.navigate("Home", { user });
-      } else {
-        setIsAuth(false);
-        alert("Đăng nhập thất bại");
+    for (const item of data) {
+      if (item.name === name && item.password === password) {
+        foundUser = item;
+        break;
       }
+    }
+
+    if (foundUser) {
+      navigation.navigate("Home", { user: foundUser });
+    } else {
+      setIsAuth(false);
+      alert("Đăng nhập thất bại");
     }
   };
 
@@ -98,6 +99,15 @@ export default function BeginScreen({ navigation }) {
         }}
       >
         <Text style={styles.btnText}>GET STARTED </Text>
+      </Pressable>
+
+      <Pressable
+        style={styles.btnContainer}
+        onPress={() => {
+          navigation.navigate("Reg");
+        }}
+      >
+        <Text style={styles.btnText}>Register </Text>
       </Pressable>
     </View>
   );

@@ -43,6 +43,8 @@ export default function HomeScreen({ navigation, route }) {
     setDataFilter([...dataFilter, newToDo]);
 
     const todo = [...dataFilter, newToDo];
+
+    console.log("id 46 ", route.params.id);
     fetch(
       `https://6544ad645a0b4b04436cb772.mockapi.io/todo/${route.params.id}`,
       {
@@ -197,7 +199,12 @@ export default function HomeScreen({ navigation, route }) {
           alignContent: "center",
         }}
         onPress={() => {
-          navigation.navigate("Add", { setData: updateData, name: name });
+          console.log("route", route.params);
+          navigation.navigate("Add", {
+            setData: updateData,
+            name: name,
+            id: route.params.id,
+          });
         }}
       >
         <Text style={{ fontSize: 20, color: "#fff" }}>+</Text>

@@ -12,60 +12,73 @@ import React, { useEffect, useState } from "react";
 import { MaterialIcons } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
+import { CheckBox } from "react-native-web";
 
 export default function HomeScreen({ navigation, route }) {
-  const [data, setData] = useState(
-    route && route.params ? route.params.todo : []
-  );
-  const [name, setName] = useState(
-    route && route.params ? route.params.name : ""
-  );
-  const [avatar, setAvatar] = useState(
-    route && route.params ? route.params.image : ""
-  );
-  const [dataFilter, setDataFilter] = useState(data);
+  const [data, setData] = useState([]);
   const [search, setSearch] = useState("");
-  const [toggleCheckBox, setToggleCheckBox] = useState(false);
-  const updateData = (newToDo) => {
-    setDataFilter([...dataFilter, newToDo]);
-
-    const todo = [...dataFilter, newToDo];
-
-    fetch(`https://6544ad645a0b4b04436cb772.mockapi.io/todo/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-
-      body: JSON.stringify({ todo: todo }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        fetchApi();
-      })
-      .catch((error) => {
-        console.error("Lỗi khi cập nhật dữ liệu:", error);
-      });
+  const [trigger, setTrigger] = useState(false);
+  const markJob = (index) => {
+    let newData = { ...data };
+    newData.todo[index].status = !newData.todo[index].status;
+    setData(newData);
   };
 
-  useEffect(() => {
-    console.log(dataFilter);
-  }, [dataFilter]);
+  const reload = () => {
+    setTrigger(!trigger);
+  };
+  // edit
+  const editTodo = (index) => {
+    navigation.navigate("Create", {
+      user: data,
+      reload: reload,
+      todo: data.todo[index],
+    });
+  };
+  // xóa
+  const delTodo = async (index) => {
+    let newTodo = data.todo;
+    newTodo.splice(index, 1);
 
-  //fetch todo
+    try {
+      const response = await fetch(
+        `https://6544ad645a0b4b04436cb772.mockapi.io/todo/${route.params.user.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ todo: newTodo }),
+        }
+      );
 
+      if (response.ok) {
+        reload();
+      } else {
+        console.error("Failed to update todos:", response.status);
+      }
+    } catch (error) {
+      console.error("Error updating todos:", error);
+    }
+  };
+  //fetch
   const fetchApi = () => {
-    fetch(`https://6544ad645a0b4b04436cb772.mockapi.io/todo/${id}`)
+    fetch(
+      `https://6544ad645a0b4b04436cb772.mockapi.io/todo/${route.params.user.id}`
+    )
       .then((response) => response.json())
-      .then((data) => {
-        console.log("test", data);
-        setData(data.todo);
+      .then((dataAPI) => {
+        setData(dataAPI);
+        // console.log(dataAPI);
       })
       .catch((error) => {
         console.error(error);
       });
   };
 
+  useEffect(() => {
+    fetchApi();
+  }, [trigger]);
   return (
     <View style={styles.Vcontainer}>
       <View
@@ -87,10 +100,10 @@ export default function HomeScreen({ navigation, route }) {
             { alignItems: "flex-end", marginRight: 30 },
           ]}
         >
-          <Image style={styles.avatar} source={{ uri: avatar }}></Image>
+          <Image style={styles.avatar} source={{ uri: data?.image }}></Image>
 
           <View style={styles.Vcontainer}>
-            <Text style={styles.name}>{`Hi ${name}`}</Text>
+            <Text style={styles.name}>{`Hi ${data?.name}`}</Text>
             <Text style={styles.h5}>Have agrate day a head</Text>
           </View>
         </View>
@@ -111,82 +124,64 @@ export default function HomeScreen({ navigation, route }) {
           value={search}
           onChangeText={(text) => {
             setSearch(text);
-
-            let temp = [];
-            data.forEach((element) => {
-              if (element.name.includes(text)) {
-                temp.push(element);
-              }
-            });
-
-            console.log(temp);
-            setDataFilter(temp);
           }}
         ></TextInput>
       </View>
 
-      <View>
-        <FlatList
-          data={dataFilter}
-          renderItem={({ item }) => {
-            return (
-              <View
-                style={[
-                  styles.hContainer,
-                  {
-                    width: 300,
-                    justifyContent: "space-between",
-                    padding: 10,
-                    backgroundColor: "#eee",
-                    borderRadius: 50,
-                    marginBottom: 20,
-                  },
-                ]}
-              >
-                <BouncyCheckbox
-                  size={25}
-                  fillColor="red"
-                  unfillColor="#FFFFFF"
-                  isChecked={item.status}
-                  //   text="Custom Checkbox"
-                  iconStyle={{ borderColor: "red" }}
-                  innerIconStyle={{ borderWidth: 2 }}
-                  textStyle={{ fontFamily: "JosefinSans-Regular" }}
-                  //=============
-                  onPress={(isChecked) => {
-                    // Cập nhật trạng thái mục dựa trên isChecked
-                    const updatedData = dataFilter.map((dataItem) => {
-                      if (dataItem.id === item.id) {
-                        return { ...dataItem, status: isChecked };
-                      }
-                      return dataItem;
-                    });
-                    setDataFilter(updatedData);
-                  }}
-                />
+      {/* ======== */}
+      <View
+        style={{
+          height: 500,
+          width: "90%",
 
-                <Text style={styles.name}>{item.name}</Text>
-                <AntDesign name="edit" size={24} color="red" />
+          alignItems: "center",
+        }}
+      >
+        <FlatList
+          data={data.todo}
+          style={{ width: "80%" }}
+          keyExtractor={(item) => item.id.toString()} // Adjust this line
+          renderItem={({ item, index }) => {
+            let status = item.status;
+            return (
+              <View style={[styles.hContainer, styles.containerTodo]}>
+                <CheckBox
+                  style={{ width: 30, height: 30 }}
+                  value={status}
+                  onValueChange={() => {
+                    markJob(index);
+                  }}
+                ></CheckBox>
+                <Text> {item.name}</Text>
+                <Pressable
+                  style={styles.btnEdit}
+                  onPress={() => {
+                    editTodo(index);
+                  }}
+                >
+                  <Text style={{ color: "white" }}>Sửa</Text>
+                </Pressable>
+                <Pressable
+                  style={styles.btnDel}
+                  onPress={() => {
+                    delTodo(index);
+                  }}
+                >
+                  <Text style={{ color: "white" }}>Xóa</Text>
+                </Pressable>
               </View>
             );
           }}
         ></FlatList>
       </View>
+
       <Pressable
-        style={{
-          width: 60,
-          height: 60,
-          borderRadius: "100%",
-          backgroundColor: "#12CFF3",
-          justifyContent: "center",
-          alignItems: "center",
-          alignContent: "center",
-        }}
+        style={styles.btn}
         onPress={() => {
-          navigation.navigate("Add", { setData: updateData, name: name });
+          navigation.navigate("Create", { user: data, reload: reload });
         }}
       >
-        <Text style={{ fontSize: 20, color: "#fff" }}>+</Text>
+        <Text>+</Text>
       </Pressable>
     </View>
   );
@@ -200,6 +195,18 @@ const styles = StyleSheet.create({
     alignContent: "flex-end",
     alignItems: "flex-end",
     alignSelf: "flex-end",
+  },
+  btnEdit: {
+    padding: 10,
+    backgroundColor: "orange",
+    justifyContent: "center",
+    alignContent: "center",
+  },
+  btnDel: {
+    padding: 10,
+    backgroundColor: "red",
+    justifyContent: "center",
+    alignContent: "center",
   },
   Vcontainer: {
     flex: 1,
@@ -229,6 +236,17 @@ const styles = StyleSheet.create({
     borderWidth: 0, // Đặt giá trị borderWidth thành 0 để loại bỏ border
     outlineStyle: "none",
   },
+  btn: {
+    width: 50,
+    height: 50,
+    backgroundColor: "#86A789",
+    borderRadius: 25,
+    justifyContent: "center",
+    alignItems: "center",
+    position: "absolute",
+    bottom: 10,
+    right: 10,
+  },
   h5: {
     fontSize: 16,
     fontWeight: "bold",
@@ -240,6 +258,16 @@ const styles = StyleSheet.create({
     borderRadius: "50%",
     width: 50,
     height: 50,
+  },
+
+  containerTodo: {
+    flex: 1,
+    width: "100%",
+    height: 30,
+    borderBottomColor: "#ccc",
+    borderBottomWidth: 1,
+    padding: 5,
+    justifyContent: "space-between",
   },
   name: {
     fontSize: 16,

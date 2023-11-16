@@ -13,6 +13,8 @@ import { Ionicons } from "@expo/vector-icons";
 
 export default function AddScreen({ navigation, route }) {
   const [todo, setTodo] = useState("");
+  console.log("id add", route.params.id);
+
   return (
     <View style={styles.Vcontainer}>
       {/* container chưa nut back và nguyên cục header */}
@@ -41,7 +43,7 @@ export default function AddScreen({ navigation, route }) {
         {/* kết thúc cục header */}
         <Pressable
           onPress={() => {
-            navigation.navigate("Home");
+            navigation.navigate("Home", { id: route.params.id });
           }}
         >
           <Ionicons name="arrow-back-sharp" size={24} color="black" />
@@ -86,6 +88,7 @@ export default function AddScreen({ navigation, route }) {
             status: false,
           };
 
+          console.log(toDo.id);
           if (todo.length > 0) {
             // route.params.setData([...route.params.data, toDo]);
             route.params.setData(toDo);
